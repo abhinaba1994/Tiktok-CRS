@@ -1,0 +1,28 @@
+package main
+
+import (
+    "github.com/Shopify/sarama"
+    "log"
+)
+
+func produceMessage(message string) {
+    config := sarama.NewConfig()
+    producer, err := sarama.NewSyncProducer([]string{"localhost:9092"}, config)
+    if err != nil {
+        log.Fatalf("Failed to start Kafka producer: %v", err)
+    }
+    defer producer.Close()
+
+    msg := &sarama.ProducerMessage{
+        Topic: "user-activity",
+        Value: sarama.StringEncoder(message),
+    }
+    _, _, err = producer.SendMessage(msg)
+    if err != nil {
+        log.Fatalf("Failed to send message: %v", err)
+    }
+}
+
+func main() {
+    produceMessage("user123:search:keyword")
+}
