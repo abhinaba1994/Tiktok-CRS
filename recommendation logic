@@ -1,0 +1,24 @@
+from concurrent import futures
+import grpc
+import recommendation_pb2
+import recommendation_pb2_grpc
+
+class RecommendationService(recommendation_pb2_grpc.RecommendationServiceServicer):
+    def GetRecommendations(self, request, context):
+        user_id = request.user_id
+        # Dummy recommendation logic
+        recommendations = [
+            {"name": "Product A"},
+            {"name": "Product B"}
+        ]
+        return recommendation_pb2.RecommendationResponse(recommendations=recommendations)
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    recommendation_pb2_grpc.add_RecommendationServiceServicer_to_server(RecommendationService(), server)
+    server.add_insecure_port('[::]:50051')
+    server.start()
+    server.wait_for_termination()
+
+if __name__ == '__main__':
+    serve()
